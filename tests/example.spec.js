@@ -1,34 +1,46 @@
-// @ts-check
 import { test, expect } from '@playwright/test';
+const { HomePage } = require('../pages/HomePage');
+const { CheckoutPage } = require('../pages/CheckoutPage');
+import data from '../Test-data/data.json';
 
-test('add product to cart and verify cart count', async ({ page }) => {
+test('End to end ', async ({ page }) => {
 
-  await page.goto('https://rahulshettyacademy.com/seleniumPractise/#/');
+  const home = new HomePage(page);
+  const checkout = new CheckoutPage(page);
 
-  // Search for Tomato
-  await page.locator('.search-keyword').fill('tom');
+  // 1. Open site
+  await home.goto(data.url);
 
-  // Select visible product
-  const product = page.locator('.product:visible');
-  await expect(product).toHaveCount(1);
+  // 2. Add multiple items
+  for (const item of data.items) {
+    await home.searchProduct(item);
+    await expect(home.products.first()).toBeVisible();
+    await home.addProductToCart();
+  }
 
-  // Increase quantity to 3
-  await product.locator('.increment').click();
-  await product.locator('.increment').click();
+  // 3. Cart & checkout
+  await home.openCart();
+  await checkout.proceedToCheckout();
 
-  // Add to cart (missing step)
-await product.locator('text=ADD TO CART').click();
+  // 4. Validate items count
+  await expect(checkout.rows).toHaveCount(data.items.length);
 
-  // Open cart
-await page.locator('.cart-icon').click();
+  // 5. Apply promo code
+  // await checkout.applyPromo(data.promoCode);
+  // await checkout.validatePromoApplied();
 
-// Proceed to checkout
-await page.locator('text=PROCEED TO CHECKOUT').click();
+  // 6. Place Order
+  await page.locator('text=Place Order').click();
 
-// Verify quantity in checkout table
-const row = page.locator('tr:has-text("Tomato")');
-//await expect(page.locator('.quantity')).toHaveText('3');
-await expect(row.locator('td').nth(2)).toHaveText('3');
+  // 7. Select country
+  await page.locator('select').selectOption('India');
 
-  await page.waitForTimeout(3000); // Wait for 2 seconds to observe the result
+  // 8. Agree to terms
+  await page.locator('.chkAgree').check();1
+
+  // 9. Proceed
+  await page.locator('text=Proceed').click();
+
+  // 10. Validate success
+  await expect(page.locator('.wrapperTwo')).toContainText('Thank you');
 });
