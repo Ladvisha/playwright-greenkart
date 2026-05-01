@@ -1,5 +1,16 @@
 {
-  "url": "https://rahulshettyacademy.com/seleniumPractise/#/",
+  "homeUrl": "https://rahulshettyacademy.com/seleniumPractise/#/",
+  "offersUrl": "https://rahulshettyacademy.com/seleniumPractise/#/offers",
+
   "items": ["Tomato", "Cucumber"],
-  "promoCode": "rahulshettyacademy"
+
+  "searchProduct": "Tomato",
+
+  "country": "India",
+
+  "date": {
+    "day": "01",
+    "month": "05",
+    "year": "2025"
+  }
 }
